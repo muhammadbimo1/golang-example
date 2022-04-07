@@ -1,0 +1,36 @@
+version: '3.7'
+services:
+  database:
+    image: postgres:alpine
+    restart: always
+    container_name: my-postgres
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_HOST=${DB_HOST}
+    ports:
+      - "5432"
+    volumes:
+      - data:/var/lib/postgresql/data
+    networks:
+      - golang-example
+  
+  server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - database
+    env_file:
+      - .env
+    networks:
+      - golang-example
+    ports:
+      - "${API_PORT}:${API_PORT}"
+volumes:
+  data:
+
+networks:
+  golang-example:
+    driver: bridge
